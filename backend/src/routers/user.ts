@@ -1,10 +1,44 @@
-import { PrismaClient } from "@prisma/client";
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { JWT_SECRET } from "..";
+import { authMiddleware } from "../Middleware";
+import { PrismaClient } from "@prisma/client";
+
+// Extending Request interface to include userId
+interface CustomRequest extends Request {
+    userId?: string;
+}
 
 const router = Router();
-const prismaClient = new PrismaClient();
-const JWT_SECRET = "santhosh0918"
+const s3Client = new S3Client();
+const prismaClient = new PrismaClient;
+
+router.get("/presignedUrl", authMiddleware, async (req: CustomRequest, res: Response) => {
+    const userId = req.userId; // TypeScript recognizes userId now
+
+    const command = new PutObjectCommand({
+        Bucket: "fiver-dappp",
+        Key: `/fiver/${userId}/${Math.random()}/image.png`,
+        ContentType: "image/png",
+    });
+
+    const preSignedUrl = await getSignedUrl(s3Client, command, {
+        expiresIn: 3600,
+    });
+
+    console.log(preSignedUrl);
+    res.json({
+        preSignedUrl,
+    });
+});
+
+
+
+
+
+
 
 router.post("/signin", async(req, res) => {
     const hardCodedWallet = "0xa32A6A5a10cC6C028137627977e5739F5568ca65"

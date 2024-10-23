@@ -2,8 +2,8 @@ import { Router } from "express";
 
 const router = Router();
 
-router.post("/sigin", (req, res) => {
-    
+router.post("/signin", (req, res) => {
+      res.json({ message: "Worker signin endpoint" });
 });
 
 export default router;

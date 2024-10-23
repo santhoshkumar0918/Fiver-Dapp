@@ -18,7 +18,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = (0, express_1.Router)();
 const prismaClient = new client_1.PrismaClient();
 const JWT_SECRET = "santhosh0918";
-router.post("/sigin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("Signin route hit");
+    console.log("Request body:", req.body);
     const hardCodedWallet = "0xa32A6A5a10cC6C028137627977e5739F5568ca65";
     const userExisting = yield prismaClient.user.findFirst({
         where: {

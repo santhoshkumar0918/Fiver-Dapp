@@ -7,15 +7,19 @@ import { authMiddleware } from "../Middleware";
 import { PrismaClient } from "@prisma/client";
 
 // Extending Request interface to include userId
-interface CustomRequest extends Request {
-    userId?: string;
-}
+
 
 const router = Router();
-const s3Client = new S3Client();
+const s3Client = new S3Client({
+    credentials: {
+        accessKeyId: "AKIAQUFLP3L2XOXXPX7G",
+        secretAccessKey : "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"
+    }
+});
 const prismaClient = new PrismaClient;
-
-router.get("/presignedUrl", authMiddleware, async (req: CustomRequest, res: Response) => {
+//@ts-ignore
+router.get("/presignedUrl", authMiddleware, async (req: Request, res: Response) => {
+    //@ts-ignore
     const userId = req.userId; // TypeScript recognizes userId now
 
     const command = new PutObjectCommand({

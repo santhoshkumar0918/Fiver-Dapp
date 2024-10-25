@@ -12,15 +12,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client");
 const express_1 = require("express");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const client_s3_1 = require("@aws-sdk/client-s3");
+const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
+const __1 = require("..");
+const Middleware_1 = require("../Middleware");
+const client_1 = require("@prisma/client");
 const router = (0, express_1.Router)();
-const prismaClient = new client_1.PrismaClient();
-const JWT_SECRET = "santhosh0918";
+const s3Client = new client_s3_1.S3Client({
+    credentials: {
+        accessKeyId: "AKIAQUFLP3L2XOXXPX7G",
+        secretAccessKey: "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"
+    }
+});
+const prismaClient = new client_1.PrismaClient;
+//@ts-ignore
+router.get("/presignedUrl", Middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //@ts-ignore
+    const userId = req.userId;
+    const command = new client_s3_1.PutObjectCommand({
+        Bucket: "fiver-dappp",
+        Key: `/fiver/${userId}/${Math.random()}/image.png`,
+        ContentType: "image/png",
+    });
+    const preSignedUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3Client, command, {
+        expiresIn: 3600,
+    });
+    console.log(preSignedUrl);
+    res.json({
+        preSignedUrl,
+    });
+}));
 router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("Signin route hit");
-    console.log("Request body:", req.body);
     const hardCodedWallet = "0xa32A6A5a10cC6C028137627977e5739F5568ca65";
     const userExisting = yield prismaClient.user.findFirst({
         where: {
@@ -30,7 +54,7 @@ router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function*
     if (userExisting) {
         const token = jsonwebtoken_1.default.sign({
             userID: userExisting.id
-        }, JWT_SECRET);
+        }, __1.JWT_SECRET);
         res.json({
             token
         });
@@ -43,7 +67,7 @@ router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
         const token = jsonwebtoken_1.default.sign({
             userID: user.id
-        }, JWT_SECRET);
+        }, __1.JWT_SECRET);
         res.json({
             token
         });

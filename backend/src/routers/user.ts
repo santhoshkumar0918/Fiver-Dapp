@@ -6,7 +6,6 @@ import { JWT_SECRET } from "..";
 import { authMiddleware } from "../Middleware";
 import { PrismaClient } from "@prisma/client";
 
-// Extending Request interface to include userId
 
 
 const router = Router();
@@ -17,26 +16,26 @@ const s3Client = new S3Client({
     }
 });
 const prismaClient = new PrismaClient;
-//@ts-ignore
-router.get("/presignedUrl", authMiddleware, async (req: Request, res: Response) => {
-    //@ts-ignore
-    const userId = req.userId; // TypeScript recognizes userId now
 
-    const command = new PutObjectCommand({
-        Bucket: "fiver-dappp",
-        Key: `/fiver/${userId}/${Math.random()}/image.png`,
-        ContentType: "image/png",
-    });
 
-    const preSignedUrl = await getSignedUrl(s3Client, command, {
-        expiresIn: 3600,
-    });
+router.get("/task", authMiddleware, async (req: Request, res: Response) => {
+  const userId = req.userId;  // TypeScript now recognizes userId on req
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
 
-    console.log(preSignedUrl);
-    res.json({
-        preSignedUrl,
-    });
+  const command = new PutObjectCommand({
+    Bucket: "fiver-dappp",
+    Key: `/fiver/${userId}/${Math.random()}/image.png`,
+    ContentType: "image/png",
+  });
+
+  const preSignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+  console.log(preSignedUrl);
+
+  res.json({ preSignedUrl });
 });
+
 
 
 

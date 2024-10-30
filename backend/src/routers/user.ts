@@ -11,8 +11,8 @@ import { PrismaClient } from "@prisma/client";
 const router = Router();
 const s3Client = new S3Client({
     credentials: {
-        accessKeyId: "AKIAQUFLP3L2XOXXPX7G",
-        secretAccessKey : "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"
+        accessKeyId: process.env.NEXT_ACESS_KEY,
+        secretAccessKey : process.env.NEXT_SECRET_KEY
     }
 });
 const prismaClient = new PrismaClient;

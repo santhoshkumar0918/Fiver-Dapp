@@ -4,7 +4,6 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { JWT_SECRET } from "..";
 import { authMiddleware } from "../Middleware";
-import { PrismaClient } from "@prisma/client";
 
 
 
@@ -18,7 +17,8 @@ const s3Client = new S3Client({
 const prismaClient = new PrismaClient;
 
 
-router.get("/task", authMiddleware, async (req: Request, res: Response) => {
+router.get("/task", authMiddleware, async (req: , res) => {
+  //@ts-ignore
   const userId = req.userId;  // TypeScript now recognizes userId on req
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
